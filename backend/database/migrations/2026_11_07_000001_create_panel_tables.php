@@ -21,7 +21,7 @@ return new class extends Migration
 
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('platform', 24)->default('android');
             $table->string('fcm_token', 512)->nullable()->unique();
@@ -40,7 +40,7 @@ return new class extends Migration
 
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('server_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('server_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('unit_name')->unique();
             $table->timestamps();
@@ -55,7 +55,7 @@ return new class extends Migration
 
         Schema::create('apps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('server_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('server_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('kind', 24)->index();
@@ -73,16 +73,16 @@ return new class extends Migration
         });
 
         Schema::create('app_technology', function (Blueprint $table) {
-            $table->foreignId('app_id')->constrained()->cascadeOnDelete()->index();
-            $table->foreignId('technology_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('app_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('technology_id')->constrained()->cascadeOnDelete();
             $table->string('version', 80)->nullable();
             $table->primary(['app_id', 'technology_id']);
         });
 
         Schema::create('checks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('app_id')->nullable()->constrained()->cascadeOnDelete()->index();
-            $table->foreignId('service_id')->nullable()->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('app_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('service_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('type', 24)->index();
             $table->string('url', 2048)->nullable();
             $table->unsignedSmallInteger('expected_status')->default(200);
@@ -112,8 +112,8 @@ return new class extends Migration
 
         Schema::create('server_metrics', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('server_id')->constrained()->cascadeOnDelete()->index();
-            $table->foreignId('metric_type_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('server_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('metric_type_id')->constrained()->cascadeOnDelete();
             $table->string('dimension', 255)->default('');
             $table->double('value');
             $table->timestamp('collected_at')->index();
@@ -123,8 +123,8 @@ return new class extends Migration
         Schema::create('alert_rules', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('metric_type_id')->nullable()->constrained()->nullOnDelete()->index();
-            $table->foreignId('check_id')->nullable()->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('metric_type_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('check_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('comparison', 24);
             $table->double('threshold')->nullable();
             $table->unsignedSmallInteger('sustain_minutes')->default(0);
@@ -144,7 +144,7 @@ return new class extends Migration
 
         Schema::create('alert_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('alert_rule_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('alert_rule_id')->constrained()->cascadeOnDelete();
             $table->string('dimension', 255)->default('');
             $table->string('state', 24)->index();
             $table->string('severity', 24)->index();
