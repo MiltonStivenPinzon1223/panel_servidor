@@ -22,4 +22,4 @@ mobile/android/app/src/main/assets/capacitor.plugins.json
 **/storage/*.key
 backend/database/*.sqlite
 backend/storage/logs/*.log
-/docs
+docs/
