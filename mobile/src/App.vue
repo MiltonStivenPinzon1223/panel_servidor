@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { App as CapacitorApp } from '@capacitor/app'
 import { PushNotifications } from '@capacitor/push-notifications'
-import { IonApp, IonContent, IonButton, IonCard, IonCardContent, IonIcon, IonText } from '@ionic/vue'
+import { IonApp, IonContent, IonButton, IonCard, IonCardContent, IonIcon, IonText, IonRouterOutlet } from '@ionic/vue'
 import { lockClosedOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
@@ -39,24 +39,32 @@ function handleUnauthorized(): void {
 }
 
 onMounted(async () => {
+  console.log('[panel] 0 onMounted')
   window.addEventListener('panel:unauthorized', handleUnauthorized)
-  pushActionHandle = await PushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
+  PushNotifications.addListener('pushNotificationActionPerformed', ({ notification }) => {
     const route = notification.data?.route
     if (typeof route === 'string' && route.startsWith('/tabs/')) {
       if (auth.unlocked) void router.push(route)
       else pendingRoute = route
     }
   })
+    .then((handle) => { pushActionHandle = handle })
+    .catch((error) => console.error('[panel] push listener falló', error))
   try {
+    console.log('[panel] 1 restaurando sesión')
     await auth.restore()
-  } catch {
+    console.log('[panel] 2 sesión restaurada, token:', auth.tokenPresent)
+  } catch (error) {
+    console.error('[panel] restore falló', error)
     auth.tokenPresent = false
     auth.unlocked = false
   }
   ready.value = true
+  console.log('[panel] 3 ready')
   if (auth.tokenPresent) {
     backgroundedAt.value = Date.now()
     await unlock()
+    console.log('[panel] 4 unlock hecho, unlocked:', auth.unlocked)
     if (auth.unlocked) {
       try {
         await import('./services/push').then(({ configurePush }) => configurePush())
@@ -65,7 +73,9 @@ onMounted(async () => {
       }
     }
   } else {
+    console.log('[panel] 5 sin token, yendo a /login')
     await router.replace('/login')
+    console.log('[panel] 6 en /login')
   }
   appStateHandle = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
     if (!isActive) {
